@@ -18,17 +18,18 @@ class Tester {
         $assertions = [
             'consecutiveCallsMustBeEquals',
             'expiresShouldAvoidCachedResult',
-            'sizeLimitShouldAvoidCache'
+            'sizeLimitShouldAvoidCache',
+            'shouldCacheManyResults'
         ];
 
         foreach ($cacheTypes as $type) {
             echo "Testing $type: ";
             $subject = Cache\Decorator::create(new $type)
-                       ->expires(2)
                        ->attachTo(Tester::class, 'methodToBeCached');
             
             $fail = 0; 
             foreach ($assertions as $function) {
+                $subject->expires(2)->limit(1000);
                 if ($tester->{$function}($subject)) {
                     echo ".";
                 } else {
@@ -62,10 +63,21 @@ class Tester {
     public function sizeLimitShouldAvoidCache(Cache\Decorator $subject)
     {
         $subject->limit(0);
-        $a  = $this->methodToBeCached(3000000);
-        $b  = $this->methodToBeCached(3000000);
+        $a = $this->methodToBeCached(3000000);
+        $b = $this->methodToBeCached(3000000);
 
         return $a != $b;
+    }
+
+    public function shouldCacheManyResults(Cache\Decorator $subject)
+    {
+        $a = $this->methodToBeCached(0);
+        $b = $this->methodToBeCached(4000000);
+
+        $c = $this->methodToBeCached(0);
+        $d = $this->methodToBeCached(4000000);
+
+        return $a != $b && $a === $c && $b == $d;
     }
 
     public function methodToBeCached($param)
