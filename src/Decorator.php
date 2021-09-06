@@ -1,18 +1,24 @@
 <?php
-
 namespace rodrigovr\Aop\Cache;
 
+/**
+ * This Decorator can be used to attach caching behavior to foreign methods.
+ * 
+ * Ex: 
+ * $decorator = Cache\Decorator::create(new Cache\MemoryCache)
+ *              ->attachTo('TargetClass', 'targetMethod);
+ * 
+ * The same decorator can be attached to multiple methods on any user-defined
+ * classes, but not on built-ins.
+ */
 class Decorator {
-
     /* cache duration in seconds */
     private $ttl = 60;
-    
     /* maximum entry size in bytes */
     private $sizeLimit = 1000000;
-
     /* salt used to rename methods */
     private $salt;
-
+    /* storage backend, set on create() */
     private Storage $cache;
 
     /**
@@ -51,30 +57,24 @@ class Decorator {
         return $this;
     }
 
-    protected function __construct()
+    /**
+     * Creates a new AOP Cache and makes it easier to chain calls
+     * @return self
+     */
+    public static function create(Storage $storage)
     {
         if (!function_exists('runkit7_method_rename')) {
             throw new \Exception('AOP Cache depends on runkit7');
         }
 
-        $this->salt = '___' . random_int(1, 9999999);
-    }
-
-    /**
-     * Creates a new AOP Cache and makes it easier to chain calls
-     * 
-     * @return self
-     */
-    public static function create(Storage $storage)
-    {
         $object = new self;
         $object->cache = $storage;
+        $object->salt = '___' . random_int(1, 9999999);
         return $object;
     }
 
     /**
      * sets or gets the cache expiration time for each cached entry
-     * 
      * @return int|self
      */
     public function expires($seconds = null)
@@ -89,6 +89,7 @@ class Decorator {
     /**
      * sets or gets the maximum entry size.
      * any return value above this limit won't be cached
+     * @return int|self
      */
     public function limit($bytes = null)
     {
@@ -99,7 +100,7 @@ class Decorator {
         return $this;
     }
 
-    public function storage()
+    public function storage(): Storage
     {
         return $this->cache;
     }
