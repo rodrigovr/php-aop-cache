@@ -16,11 +16,9 @@ class MemoryCache implements Storage {
     {
         list($expires, $value) = $this->bucket[$key] ?? [ null, null ];
 
-        if (
-            $value !== null && 
-            $expires !== null && 
-            time() < $expires
-        ) {
+        if ($expires !== null && time() > $expires) {
+            unset($this->bucket[$key]);
+        } else {
             return $value;
         }
     }

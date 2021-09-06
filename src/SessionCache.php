@@ -18,11 +18,9 @@ class SessionCache implements Storage {
         $key = $this->prefix . $key;
         list($expires, $value) = $_SESSION[$key] ?? [ null, null ];
 
-        if (
-            $value !== null && 
-            $expires !== null && 
-            time() < $expires
-        ) {
+        if ($expires !== null && time() > $expires) {
+            unset($_SESSION[$key]);
+        } else {
             return $value;
         }
     }
