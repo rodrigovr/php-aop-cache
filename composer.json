@@ -1,0 +1,24 @@
+{
+    "name": "rodrigovr/php-aop-cache",
+    "description": "Cache method calls using Aspect-Oriented Programming techniques.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rodrigo Valceli Raimundo",
+            "email": "rodrigovalceli@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0"
+    },
+    "autoload": {
+        "psr-4": { 
+            "rodrigovr\\Aop\\Cache\\": "src/",
+            "rodrigovr\\Aop\\Cache\\Tests\\": "test/"
+        }
+    },
+    "scripts": {
+        "test": "@php -d auto_prepend_file=vendor/autoload.php tests/Tester.php"
+    }
+}
